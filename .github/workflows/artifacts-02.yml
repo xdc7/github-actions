@@ -1,3 +1,38 @@
+# name: Download build artifact
+# on:
+#   workflow_run:
+#     workflows: ["Create build artifact"]
+#     types:
+#       - completed
+
+# jobs:
+#   download-artifact:
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     steps:
+#       - name: Get artifact download URL
+#         id: get-artifact-url
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           artifacts_url="${{ github.event.workflow_run.artifacts_url }}"
+#           artifact_name="output-log-file"
+#           download_url=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $artifacts_url | jq -r ".artifacts[] | select(.name == \"$artifact_name\") | .archive_download_url")
+#           if [ -z "$download_url" ]; then
+#             echo "No artifact found with name: $artifact_name"
+#             exit 1
+#           fi
+#           echo "download_url=$download_url" >> $GITHUB_OUTPUT
+
+#       - name: Download artifact
+#         if: steps.get-artifact-url.outputs.download_url
+#         run: |
+#           curl -L -o artifact.zip -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ steps.get-artifact-url.outputs.download_url }}
+#           unzip artifact.zip
+
+#       - name: Display artifact contents
+#         run: cat output.log
+
 name: Download build artifact
 on:
   workflow_run:
@@ -10,25 +45,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Get artifact download URL
-        id: get-artifact-url
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          artifacts_url="${{ github.event.workflow_run.artifacts_url }}"
-          artifact_name="output-log-file"
-          download_url=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $artifacts_url | jq -r ".artifacts[] | select(.name == \"$artifact_name\") | .archive_download_url")
-          if [ -z "$download_url" ]; then
-            echo "No artifact found with name: $artifact_name"
-            exit 1
-          fi
-          echo "download_url=$download_url" >> $GITHUB_OUTPUT
-
-      - name: Download artifact
-        if: steps.get-artifact-url.outputs.download_url
-        run: |
-          curl -L -o artifact.zip -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${{ steps.get-artifact-url.outputs.download_url }}
-          unzip artifact.zip
-
-      - name: Display artifact contents
-        run: cat output.log
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: output-log-file
+          run-id: ${{ github.event.workflow_run.id }}
+      
+      - name: Display structure of downloaded files
+        run: ls -R
