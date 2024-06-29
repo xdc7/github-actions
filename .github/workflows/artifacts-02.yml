@@ -1,0 +1,11 @@
+name: Download build artifact
+run-name: ${{ github.actor }} is downloading a build artifact
+on: [push]
+jobs:
+  download-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: output-log-file
