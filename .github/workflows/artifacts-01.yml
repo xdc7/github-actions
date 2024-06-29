@@ -1,8 +1,8 @@
-name: Create build artifact
+name: Create build artifact and download artifact
 run-name: ${{ github.actor }} is creating a build artifact
 on: [push]
 jobs:
-  example-job:
+  create-artifact:
     name: Save output
     runs-on: ubuntu-latest
     steps:
@@ -15,4 +15,16 @@ jobs:
         with:
           name: output-log-file
           path: output.log
+  download-artifact:
+    runs-on: ubuntu-latest
+    needs: create-artifact
+    steps:   
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: output-log-file
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Display downloaded files
+        run: cat output.log
 
