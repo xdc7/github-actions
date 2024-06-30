@@ -1,7 +1,7 @@
 name: Reusable workflow
 
 on:
-  workflow_call:
+  workflow_dispatch:
     # Map the workflow outputs to job outputs
     outputs:
       firstword:
