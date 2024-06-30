@@ -1,4 +1,4 @@
-name: build
+name: json-matrix
 on: push
 jobs:
   job1:
